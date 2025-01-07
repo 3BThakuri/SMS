@@ -20,7 +20,7 @@ public:
     std::string getName() const { return name; }
     std::string getCourse() const { return course; }
 
-    // Setters Update Details
+    // Setters
     void setName(const std::string& n) { name = n; }
     void setCourse(const std::string& c) { course = c; }
 };
@@ -28,9 +28,8 @@ public:
 // Class to manage the SMS
 class StudentManagementSystem {
 private:
-    std::vector<Student> students;   // List of students
-    const std::string filename = "students.txt";   // File where students are saved
-
+    std::vector<Student> students;
+    const std::string filename = "students.txt";
 
     // Save student data to a file
     void saveToFile() {
@@ -64,6 +63,16 @@ private:
         file.close();
     }
 
+    // Check if a student with a given ID exists
+    bool studentExists(int id) const {
+        for (const auto& student : students) {
+            if (student.getId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 public:
     // Constructor to initialize and load data
     StudentManagementSystem() {
@@ -77,20 +86,26 @@ public:
 
         std::cout << "Enter student ID: ";
         std::cin >> id;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Ignore leftover input
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        if (studentExists(id)) {
+            std::cout << "\n That a student with the same ID is already in the system. (You can't add a new student with the same ID)\n";
+            return;
+        }
+
         std::cout << "Enter student name: ";
         std::getline(std::cin, name);
         std::cout << "Enter student course: ";
         std::getline(std::cin, course);
 
-        students.emplace_back(id, name, course); // Add the student to the list
-        saveToFile(); //Save the list to the file
+        students.emplace_back(id, name, course);
+        saveToFile();
         std::cout << "\nGreat! The student has been added.\n";
     }
 
     // Display all students
     void viewStudents() const {
-        if (students.empty()) { // Check if no students exist
+        if (students.empty()) {
             std::cout << "\nThere are no students in the system yet.\n";
             return;
         }
@@ -102,6 +117,16 @@ public:
         }
     }
 
+    // Search for a student by ID
+    Student* searchStudentById(int id) {
+        for (auto& student : students) {
+            if (student.getId() == id) {
+                return &student;
+            }
+        }
+        return nullptr;
+    }
+
     // Update student details
     void updateStudent() {
         int id;
@@ -109,23 +134,23 @@ public:
         std::cin >> id;
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-        for (auto& student : students) {
-            if (student.getId() == id) {
-                std::string name, course;
-                std::cout << "\nDo you want to change the name? Enter a new Name or press Enter to skip: ";
-                std::getline(std::cin, name);
-                if (!name.empty()) student.setName(name);
-
-                std::cout << "\nDo you want to change the course? Enter a new Course or press Enter to skip:  ";
-                std::getline(std::cin, course);
-                if (!course.empty()) student.setCourse(course);
-
-                saveToFile();
-                std::cout << "\nThe student has been updated!\n";
-                return;
-            }
+        Student* student = searchStudentById(id);
+        if (!student) {
+            std::cout << "\nSorry, no student found with that ID.\n";
+            return;
         }
-        std::cout << "\nSorry, no student found with that ID.\n";
+
+        std::string name, course;
+        std::cout << "\nDo you want to change the name? Enter a new Name or press Enter to skip: ";
+        std::getline(std::cin, name);
+        if (!name.empty()) student->setName(name);
+
+        std::cout << "\nDo you want to change the course? Enter a new Course or press Enter to skip: ";
+        std::getline(std::cin, course);
+        if (!course.empty()) student->setCourse(course);
+
+        saveToFile();
+        std::cout << "\nThe student has been updated!\n";
     }
 
     // Delete a student
@@ -136,8 +161,8 @@ public:
 
         for (auto it = students.begin(); it != students.end(); ++it) {
             if (it->getId() == id) {
-                students.erase(it);    // Remove the student
-                saveToFile();    // Save the updated list to the file
+                students.erase(it);
+                saveToFile();
                 std::cout << "\nThe student has been deleted.\n";
                 return;
             }
@@ -152,8 +177,7 @@ int main() {
     int choice;
 
     do {
-        // Show the menu
-        std::cout << "\nStudent Management System \n";
+        std::cout << "\nStudent Management System\n";
         std::cout << "1. Add a New Student\n";
         std::cout << "2. View All Students\n";
         std::cout << "3. Update a Student\n";
@@ -162,7 +186,6 @@ int main() {
         std::cout << "\nEnter your choice: ";
         std::cin >> choice;
 
-          // user's choice
         switch (choice) {
             case 1:
                 sms.addStudent();
@@ -182,8 +205,7 @@ int main() {
             default:
                 std::cout << "\nThat is not a valid choice. Please try again.\n";
         }
-    } while (choice != 5); // Keep running until the user chooses to exit
-
+    } while (choice != 5);
 
     return 0;
 }
