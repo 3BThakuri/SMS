@@ -56,7 +56,7 @@ private:
                 else if (i == 1) name = line.substr(0, pos);
                 line.erase(0, pos + 1);
                 i++;
-            }
+            }// https://github.com/3BThakuri/SMS
             course = line;
             students.emplace_back(id, name, course);
         }
@@ -158,7 +158,7 @@ public:
         int id;
         std::cout << "\nEnter the ID of the student you want to delete: ";
         std::cin >> id;
-
+            // https://github.com/3BThakuri/SMS
         for (auto it = students.begin(); it != students.end(); ++it) {
             if (it->getId() == id) {
                 students.erase(it);
@@ -209,3 +209,15 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+// https://github.com/3BThakuri/SMS
